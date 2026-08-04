@@ -8,20 +8,24 @@ public class EventOption implements Serializable {
     private final String name;
     private int sharesBought;
 
-    public EventOption(String name) {
+    public EventOption(String name) 
+    {
         this.name = name;
         sharesBought = 0;
     }
 
-    public String getName() {
+    public String getName() 
+    {
         return name;
     }
 
-    public int getSharesBought() {
+    public int getSharesBought()
+    {
         return sharesBought;
     }
 
-    public void addShares(int amount) {
+    public void addShares(int amount)
+    {
         sharesBought += amount;
     }
 }
