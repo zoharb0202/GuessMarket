@@ -8,13 +8,8 @@ import guessmarket.engine.exception.StateFileException;
 
 import java.util.List;
 
-/**
- * The set of actions the system knows how to do.
- * The engine only answers requests, it does not know who is asking.
- * Option numbers that come in here are indexes that start from 0 - it is up to the
- * user interface to show them to the user starting from 1.
- */
-public interface GuessMarketEngine {
+public interface GuessMarketEngine 
+{
 
     void loadEventsFile(String path) throws InvalidFileException;
 
