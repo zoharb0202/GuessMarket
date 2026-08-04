@@ -12,9 +12,8 @@ public class EventStateDto {
     private final boolean closed;
     private final String winningOptionName;
 
-    public EventStateDto(int eventId, String eventName, List<OptionStateDto> options,
-                         double accountBalance, double collectedCommission, List<TradeDto> trades,
-                         boolean closed, String winningOptionName) {
+    public EventStateDto(int eventId, String eventName, List<OptionStateDto> options, double accountBalance, double collectedCommission, List<TradeDto> trades, boolean closed, String winningOptionName)
+    {
         this.eventId = eventId;
         this.eventName = eventName;
         this.options = options;
@@ -25,31 +24,38 @@ public class EventStateDto {
         this.winningOptionName = winningOptionName;
     }
 
-    public int getEventId() {
+    public int getEventId() 
+    {
         return eventId;
     }
 
-    public String getEventName() {
+    public String getEventName() 
+    {
         return eventName;
     }
 
-    public List<OptionStateDto> getOptions() {
+    public List<OptionStateDto> getOptions()
+    {
         return options;
     }
 
-    public double getAccountBalance() {
+    public double getAccountBalance()
+    {
         return accountBalance;
     }
 
-    public double getCollectedCommission() {
+    public double getCollectedCommission() 
+    {
         return collectedCommission;
     }
 
-    public List<TradeDto> getTrades() {
+    public List<TradeDto> getTrades()
+    {
         return trades;
     }
 
-    public boolean isClosed() {
+    public boolean isClosed() 
+    {
         return closed;
     }
 
