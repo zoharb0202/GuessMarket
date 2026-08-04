@@ -10,30 +10,36 @@ public class Trade implements Serializable {
     private final double sharesCost;
     private final double commission;
 
-    public Trade(String optionName, int quantity, double sharesCost, double commission) {
+    public Trade(String optionName, int quantity, double sharesCost, double commission)
+    {
         this.optionName = optionName;
         this.quantity = quantity;
         this.sharesCost = sharesCost;
         this.commission = commission;
     }
 
-    public String getOptionName() {
+    public String getOptionName() 
+    {
         return optionName;
     }
 
-    public int getQuantity() {
+    public int getQuantity() 
+    {
         return quantity;
     }
 
-    public double getSharesCost() {
+    public double getSharesCost()
+    {
         return sharesCost;
     }
 
-    public double getCommission() {
+    public double getCommission()
+    {
         return commission;
     }
 
-    public double getTotalPaid() {
+    public double getTotalPaid()
+    {
         return sharesCost + commission;
     }
 }
