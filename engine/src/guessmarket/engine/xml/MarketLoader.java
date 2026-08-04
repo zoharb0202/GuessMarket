@@ -62,7 +62,7 @@ public class MarketLoader {
         File file = new File(path);
         if (!file.exists())
         {
-            throw new InvalidFileException("There is no file at the path '" + path);
+            throw new InvalidFileException("There is no file at the path '" + path + "'");
         }
         if (!file.isFile()) 
         {
@@ -87,7 +87,7 @@ public class MarketLoader {
         Element root = document.getDocumentElement();
         if (root == null || !ROOT_TAG.equals(root.getNodeName()))
         {
-            throw new InvalidFileException("The main element of the file should be '" + ROOT_TAG);
+            throw new InvalidFileException("The main element of the file should be '" + ROOT_TAG + "'");
         }
         return root;
     }
@@ -184,7 +184,7 @@ public class MarketLoader {
                 {
                 if (option.getName().equalsIgnoreCase(optionName))
                 {
-                    throw new InvalidFileException("The event '" + eventName + "' has two options named '" + optionName);
+                    throw new InvalidFileException("The event '" + eventName + "' has two options named '" + optionName + "'");
                 }
             }
             options.add(new EventOption(optionName));
