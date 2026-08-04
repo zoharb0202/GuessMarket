@@ -7,19 +7,23 @@ public class Account implements Serializable {
 
     private double balance;
 
-    public Account(double initialBalance) {
+    public Account(double initialBalance)
+    {
         balance = initialBalance;
     }
 
-    public double getBalance() {
+    public double getBalance() 
+    {
         return balance;
     }
 
-    public void deposit(double amount) {
+    public void deposit(double amount)
+    {
         balance += amount;
     }
 
-    public void withdraw(double amount) {
+    public void withdraw(double amount) 
+    {
         balance -= amount;
     }
 }
