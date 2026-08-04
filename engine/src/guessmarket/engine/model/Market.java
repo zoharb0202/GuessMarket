@@ -9,38 +9,48 @@ public class Market implements Serializable {
 
     private final List<Event> events;
 
-    public Market() {
+    public Market() 
+    {
         events = new ArrayList<Event>();
     }
 
-    public void addEvent(Event event) {
+    public void addEvent(Event event)
+    {
         events.add(event);
     }
 
-    public List<Event> getEvents() {
+    public List<Event> getEvents() 
+    {
         return events;
     }
 
-    public List<Event> getActiveEvents() {
+    public List<Event> getActiveEvents()
+    {
         List<Event> activeEvents = new ArrayList<Event>();
-        for (Event event : events) {
-            if (event.isActive()) {
+        for (Event event : events) 
+        {
+            if (event.isActive()) 
+            {
                 activeEvents.add(event);
             }
         }
         return activeEvents;
     }
 
-    public Event findById(int id) {
-        for (Event event : events) {
-            if (event.getId() == id) {
+    public Event findById(int id) 
+    {
+        for (Event event : events)
+            {
+            if (event.getId() == id)
+            {
                 return event;
             }
         }
         return null;
     }
 
-    public boolean containsId(int id) {
+    public boolean containsId(int id) 
+    {
         return findById(id) != null;
     }
 }
