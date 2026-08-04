@@ -1,0 +1,2 @@
+Main-Class: guessmarket.console.Main
+Class-Path: engine.jar

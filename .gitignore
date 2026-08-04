@@ -1,0 +1,7 @@
+out/
+dist/
+*.class
+*.jar
+*.gm
+.idea/
+*.iml
