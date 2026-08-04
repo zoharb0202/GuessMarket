@@ -5,21 +5,25 @@ public class OptionStateDto {
     private final double value;
     private final int sharesBought;
 
-    public OptionStateDto(String name, double value, int sharesBought) {
+    public OptionStateDto(String name, double value, int sharesBought) 
+    {
         this.name = name;
         this.value = value;
         this.sharesBought = sharesBought;
     }
 
-    public String getName() {
+    public String getName() 
+    {
         return name;
     }
 
-    public double getValue() {
+    public double getValue() 
+    {
         return value;
     }
 
-    public int getSharesBought() {
+    public int getSharesBought()
+    {
         return sharesBought;
     }
 }
