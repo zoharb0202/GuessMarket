@@ -74,7 +74,7 @@ public class ConsoleApp
 
     private void loadFile() 
     {
-        String path = inputReader.readPath("Please enter the full path of the xml file:");
+        String path = inputReader.readPath("Please enter the full path of the xml file: ");
         try {
             engine.loadEventsFile(path);
             printer.printMessage("The file is valid and was loaded. The system now holds "
@@ -180,7 +180,7 @@ public class ConsoleApp
             printer.printMessage("The state of the system was saved");
         } catch (StateFileException e) 
             {
-            printer.printMessage("The state was not saved " + e.getMessage());
+            printer.printMessage("The state was not saved - " + e.getMessage());
         }
     }
 
@@ -194,7 +194,7 @@ public class ConsoleApp
                     + engine.getAllEvents().size() + " events.");
         } catch (StateFileException e) 
             {
-            printer.printMessage("The state was not loaded " + e.getMessage());
+            printer.printMessage("The state was not loaded - " + e.getMessage());
             if (engine.isFileLoaded()) 
             {
                 printer.printMessage("The events that were loaded before are still in the system");
