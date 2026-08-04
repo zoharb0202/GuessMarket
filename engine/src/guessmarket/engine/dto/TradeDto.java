@@ -5,21 +5,25 @@ public class TradeDto {
     private final int quantity;
     private final double pricePaid;
 
-    public TradeDto(String optionName, int quantity, double pricePaid) {
+    public TradeDto(String optionName, int quantity, double pricePaid) 
+    {
         this.optionName = optionName;
         this.quantity = quantity;
         this.pricePaid = pricePaid;
     }
 
-    public String getOptionName() {
+    public String getOptionName() 
+    {
         return optionName;
     }
 
-    public int getQuantity() {
+    public int getQuantity()
+    {
         return quantity;
     }
 
-    public double getPricePaid() {
+    public double getPricePaid() 
+    {
         return pricePaid;
     }
 }
