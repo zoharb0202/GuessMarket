@@ -11,8 +11,8 @@ public class EventDto {
     private final List<String> optionNames;
     private final String status;
 
-    public EventDto(int id, String name, String description, int commissionPercent,
-                    String commissionDescription, List<String> optionNames, String status) {
+    public EventDto(int id, String name, String description, int commissionPercent, String commissionDescription, List<String> optionNames, String status)
+    {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -22,31 +22,38 @@ public class EventDto {
         this.status = status;
     }
 
-    public int getId() {
+    public int getId() 
+    {
         return id;
     }
 
-    public String getName() {
+    public String getName() 
+    {
         return name;
     }
 
-    public String getDescription() {
+    public String getDescription() 
+    {
         return description;
     }
 
-    public int getCommissionPercent() {
+    public int getCommissionPercent() 
+    {
         return commissionPercent;
     }
 
-    public String getCommissionDescription() {
+    public String getCommissionDescription() 
+    {
         return commissionDescription;
     }
 
-    public List<String> getOptionNames() {
+    public List<String> getOptionNames() 
+    {
         return optionNames;
     }
 
-    public String getStatus() {
+    public String getStatus()
+    {
         return status;
     }
 }
