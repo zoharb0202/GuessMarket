@@ -45,7 +45,7 @@ public class InputReader
 
             if (input.isEmpty())
             {
-                System.out.println("Nothing was entered " + rangeMessage);
+                System.out.println("Nothing was entered - " + rangeMessage);
                 continue;
             }
 
@@ -54,13 +54,13 @@ public class InputReader
                 int number = Integer.parseInt(input);
                 if (number < min || number > max)
                 {
-                    System.out.println("The number " + number + " can not be used here " + rangeMessage);
+                    System.out.println("The number " + number + " can not be used here - " + rangeMessage);
                     continue;
                 }
                 return number;
             } catch (NumberFormatException e)
                 {
-                System.out.println("'" + input + "' is not a whole number " + rangeMessage);
+                System.out.println("'" + input + "' is not a whole number - " + rangeMessage);
             }
         }
     }
