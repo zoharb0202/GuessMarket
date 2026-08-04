@@ -24,8 +24,8 @@ public class Event implements Serializable {
     private EventStatus status;
     private EventOption winningOption;
 
-    public Event(int id, String name, String description, int commissionPercent,
-                 CommissionType commissionType, List<EventOption> options, TradingMethod method) {
+    public Event(int id, String name, String description, int commissionPercent, CommissionType commissionType, List<EventOption> options, TradingMethod method)
+    {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -39,62 +39,77 @@ public class Event implements Serializable {
         account = new Account(method.getInitialSubsidy());
     }
 
-    public int getId() {
+    public int getId() 
+    {
         return id;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return name;
     }
 
-    public String getDescription() {
+    public String getDescription() 
+    {
         return description;
     }
 
-    public int getCommissionPercent() {
+    public int getCommissionPercent() 
+    {
         return commissionPercent;
     }
 
-    public CommissionType getCommissionType() {
+    public CommissionType getCommissionType() 
+    {
         return commissionType;
     }
 
-    public List<EventOption> getOptions() {
+    public List<EventOption> getOptions()
+    {
         return options;
     }
 
-    public EventStatus getStatus() {
+    public EventStatus getStatus()
+    {
         return status;
     }
 
-    public boolean isActive() {
+    public boolean isActive()
+    {
         return status == EventStatus.ACTIVE;
     }
 
-    public double getAccountBalance() {
+    public double getAccountBalance()
+    {
         return account.getBalance();
     }
 
-    public double getCollectedCommission() {
+    public double getCollectedCommission()
+    {
         return collectedCommission;
     }
 
-    public List<Trade> getTrades() {
+    public List<Trade> getTrades()
+    {
         return trades;
     }
 
-    public EventOption getWinningOption() {
+    public EventOption getWinningOption() 
+    {
         return winningOption;
     }
 
-    public double getOptionValue(int optionIndex) {
+    public double getOptionValue(int optionIndex)
+    {
         return method.getOptionValue(optionIndex);
     }
 
-    public Trade buyShares(int optionIndex, int quantity) {
+    public Trade buyShares(int optionIndex, int quantity) 
+    {
         double sharesCost = method.getBuyCost(optionIndex, quantity);
         double commission = 0;
-        if (commissionType == CommissionType.ON_PURCHASE) {
+        if (commissionType == CommissionType.ON_PURCHASE)
+        {
             commission = sharesCost * commissionPercent / 100.0;
             collectedCommission += commission;
         }
@@ -107,11 +122,13 @@ public class Event implements Serializable {
         return trade;
     }
 
-    public void close(int optionIndex) {
+    public void close(int optionIndex)
+    {
         winningOption = options.get(optionIndex);
         double payout = winningOption.getSharesBought() * WINNING_SHARE_VALUE;
 
-        if (commissionType == CommissionType.ON_CLOSE) {
+        if (commissionType == CommissionType.ON_CLOSE) 
+        {
             double commission = payout * commissionPercent / 100.0;
             collectedCommission += commission;
             payout -= commission;
