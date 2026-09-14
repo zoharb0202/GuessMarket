@@ -6,10 +6,10 @@ if exist dist rmdir /s /q dist
 mkdir out\engine out\ui dist
 
 dir /s /b engine\src\*.java > out\engine-sources.txt
-javac --release 21 -d out\engine @out\engine-sources.txt || goto :error
+javac --release 25 -d out\engine @out\engine-sources.txt || goto :error
 
 dir /s /b ui\src\*.java > out\ui-sources.txt
-javac --release 21 -cp "out\engine;javafx-runtime\lib\*" -d out\ui @out\ui-sources.txt || goto :error
+javac --release 25 -cp "out\engine;javafx-runtime\lib\*" -d out\ui @out\ui-sources.txt || goto :error
 
 xcopy /e /i /y ui\resources out\ui >nul
 

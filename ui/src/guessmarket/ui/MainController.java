@@ -360,6 +360,8 @@ public class MainController {
         Label summary = new Label(String.format(Locale.US,
                 "Event account: %.2f    Commission collected: %.2f    b: %d",
                 state.getAccountBalance(), state.getCollectedCommission(), state.getB()));
+        summary.setWrapText(true);
+        summary.setMaxWidth(Double.MAX_VALUE);
 
         TableView<OptionStateDto> optionsTable = buildOptionsTable();
         optionsTable.getItems().addAll(state.getOptions());
@@ -386,6 +388,8 @@ public class MainController {
         Label summary = new Label(String.format(Locale.US,
                 "Event account: %.2f    Base value (d): %d    Mint allowed: %s    Commission collected: %.2f",
                 state.getAccountBalance(), state.getBaseValue(), state.isMintAllowed(), state.getCollectedCommission()));
+        summary.setWrapText(true);
+        summary.setMaxWidth(Double.MAX_VALUE);
 
         box.getChildren().addAll(header, summary);
 
@@ -418,13 +422,15 @@ public class MainController {
     private VBox buildOptionBookBlock(OptionBookDto book) {
         VBox optionBox = new VBox(4);
 
-        Label optionHeader = new Label(book.getOptionName() + "  (shares outstanding: " + book.getTotalShares() + ")");
+        Label optionHeader = new Label(book.getOptionName() + "\n(shares outstanding: " + book.getTotalShares() + ")");
         optionHeader.setStyle("-fx-font-weight: bold;");
 
         Label stats = new Label(String.format(Locale.US,
                 "LAST: %s    BID: %s    ASK: %s    MID: %s    SPREAD: %s",
                 fmtPrice(book.getLastPrice()), fmtPrice(book.getBestBid()), fmtPrice(book.getBestAsk()),
                 fmtPrice(book.getMidPrice()), fmtPrice(book.getSpread())));
+        stats.setWrapText(true);
+        stats.setMaxWidth(Double.MAX_VALUE);
 
         TableView<OrderDto> bidsTable = buildOrdersTable();
         bidsTable.getItems().addAll(book.getBids());
@@ -771,14 +777,22 @@ public class MainController {
 
         Button createButton = new Button("Create event");
         createButton.setOnAction(e -> {
+            String newName = nameField.getText().trim();
+            boolean nameTaken = engine.getAllEvents().stream()
+                    .anyMatch(ev -> ev.getName().equalsIgnoreCase(newName));
+            if (nameTaken) {
+                showError("Could not create the event",
+                        "An event named '" + newName + "' already exists. Please choose a different name.");
+                return;
+            }
             List<String> optionNames = List.of(option1Field.getText(), option2Field.getText());
             try {
                 int newId;
                 if ("LMSR".equals(methodCombo.getValue())) {
-                    newId = engine.createLmsrEvent(creatorName, nameField.getText(), descField.getText(),
+                    newId = engine.createLmsrEvent(creatorName, newName, descField.getText(),
                             commissionSpinner.getValue(), commissionTypeCombo.getValue(), optionNames, bSpinner.getValue());
                 } else {
-                    newId = engine.createOrderBookEvent(creatorName, nameField.getText(), descField.getText(),
+                    newId = engine.createOrderBookEvent(creatorName, newName, descField.getText(),
                             commissionSpinner.getValue(), commissionTypeCombo.getValue(), optionNames,
                             allowMintCheck.isSelected(), initialSpinner.getValue(), dSpinner.getValue());
                 }

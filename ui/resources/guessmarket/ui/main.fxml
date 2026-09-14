@@ -13,25 +13,31 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.FlowPane?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="guessmarket.ui.MainController">
     <top>
-        <VBox spacing="4">
+        <VBox spacing="6">
             <padding>
                 <Insets top="10" right="10" bottom="6" left="10"/>
             </padding>
+            <Label text="Guess Market" alignment="CENTER" maxWidth="Infinity"
+                   style="-fx-font-family: 'Arial'; -fx-font-size: 24px; -fx-font-weight: bold;"/>
             <HBox spacing="12" alignment="CENTER_LEFT">
-                <Button fx:id="loadButton" text="Load Events File" onAction="#handleLoadFile"/>
-                <Label text="File:"/>
-                <Label fx:id="filePathLabel" text="No file loaded" style="-fx-font-style: italic;"
-                       HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                <Label text="Skin:"/>
-                <ComboBox fx:id="skinCombo"/>
-                <CheckBox fx:id="animationsCheckBox" text="Animations"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label text="Guess Market" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                <FlowPane hgap="12" vgap="6" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                    <Button fx:id="loadButton" text="Load Events File" onAction="#handleLoadFile"/>
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <Label text="File:"/>
+                        <Label fx:id="filePathLabel" text="No file loaded" style="-fx-font-style: italic;"/>
+                    </HBox>
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <Label text="Skin:"/>
+                        <ComboBox fx:id="skinCombo"/>
+                    </HBox>
+                    <CheckBox fx:id="animationsCheckBox" text="Animations"/>
+                </FlowPane>
             </HBox>
             <ProgressBar fx:id="progressBar" maxWidth="Infinity" visible="false" managed="false"/>
         </VBox>

@@ -25,6 +25,8 @@ public class MainApp extends Application {
 
         Scene scene = new Scene(root, 900, 600);
         stage.setScene(scene);
+        stage.setMinWidth(780);
+        stage.setMinHeight(520);
         stage.setTitle("Guess Market");
         stage.show();
     }
