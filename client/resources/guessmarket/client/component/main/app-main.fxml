@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="guessmarket.client.component.main.AppMainController">
+    <top>
+        <VBox spacing="6">
+            <padding>
+                <Insets top="10" right="10" bottom="6" left="10"/>
+            </padding>
+            <Label text="Guess Market" alignment="CENTER" maxWidth="Infinity"
+                   style="-fx-font-family: 'Arial'; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <FlowPane hgap="14" vgap="6" alignment="CENTER_LEFT">
+                <Label fx:id="userGreetingLabel" style="-fx-font-weight: bold;"/>
+                <Label fx:id="balanceLabel"/>
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <Label text="Skin:"/>
+                    <ComboBox fx:id="skinComboBox"/>
+                </HBox>
+                <CheckBox fx:id="animationsCheckBox" text="Animations"/>
+                <Label fx:id="connectionLabel" style="-fx-text-fill: red;"/>
+            </FlowPane>
+        </VBox>
+    </top>
+    <center>
+        <AnchorPane fx:id="mainPanel"/>
+    </center>
+</BorderPane>

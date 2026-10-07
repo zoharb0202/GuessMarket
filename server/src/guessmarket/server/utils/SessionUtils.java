@@ -1,0 +1,14 @@
+package guessmarket.server.utils;
+
+import guessmarket.server.constants.Constants;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
+public abstract class SessionUtils {
+
+    public static String getUsername(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        Object sessionAttribute = session != null ? session.getAttribute(Constants.USERNAME) : null;
+        return sessionAttribute != null ? sessionAttribute.toString() : null;
+    }
+}

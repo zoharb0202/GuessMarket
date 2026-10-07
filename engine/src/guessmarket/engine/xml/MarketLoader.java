@@ -8,7 +8,6 @@ import guessmarket.engine.model.CommissionType;
 import guessmarket.engine.model.Event;
 import guessmarket.engine.model.EventOption;
 import guessmarket.engine.model.Market;
-import guessmarket.engine.model.User;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,17 +17,11 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-/**
- * Reads an exercise 2 xml file into a Market object and checks that its content
- * makes sense. Nothing is loaded into the system unless the whole file is valid.
- */
 public class MarketLoader
 {
     private static final String XML_SUFFIX = ".xml";
@@ -36,8 +29,6 @@ public class MarketLoader
     private static final String EVENTS_TAG = "GM-events";
     private static final String EVENT_TAG = "GM-event";
     private static final String NAME_ATTRIBUTE = "name";
-    private static final String ID_TAG = "id";
-    private static final String ID_ATTRIBUTE = "id";
     private static final String DESCRIPTION_TAG = "description";
     private static final String COMMISSION_TAG = "commission";
     private static final String TYPE_ATTRIBUTE = "type";
@@ -50,58 +41,39 @@ public class MarketLoader
     private static final String ALLOW_MINT_ATTRIBUTE = "allow-mint";
     private static final String INITIAL_ATTRIBUTE = "initial";
     private static final String D_ATTRIBUTE = "d";
-    private static final String USERS_TAG = "GM-users";
-    private static final String USER_TAG = "GM-user";
-    private static final String INITIAL_CASH_TAG = "initial-cash";
-    private static final String MARKET_MAKER_TAG = "GM-market-maker";
-    private static final String MM_EVENT_TAG = "event";
 
     private static final int MIN_COMMISSION = 0;
     private static final int MAX_COMMISSION = 90;
     private static final int OPTIONS_PER_EVENT = 2;
 
-    public Market load(String path) throws InvalidFileException
+    public List<Event> load(InputStream content, String fileName, Market market) throws InvalidFileException
     {
-        File file = checkFile(path);
-        Element root = readRoot(file);
-        Market market = new Market();
-        readEvents(root, market);
-        readUsers(root, market);
-        checkMarketMakers(market);
-        return market;
+        checkFileName(fileName);
+        Element root = readRoot(content);
+        return readEvents(root, market);
     }
 
-    private File checkFile(String path) throws InvalidFileException
+    private void checkFileName(String fileName) throws InvalidFileException
     {
-        if (path == null || path.trim().isEmpty())
+        if (fileName == null || fileName.trim().isEmpty())
         {
-            throw new InvalidFileException("No path was entered");
+            throw new InvalidFileException("No file was uploaded");
         }
-        if (!path.toLowerCase().endsWith(XML_SUFFIX))
+        if (!fileName.trim().toLowerCase().endsWith(XML_SUFFIX))
         {
-            throw new InvalidFileException("The file '" + path + "' is not an xml file - the path must end with " + XML_SUFFIX);
+            throw new InvalidFileException("The file '" + fileName + "' is not an xml file - its name must end with " + XML_SUFFIX);
         }
-
-        File file = new File(path);
-        if (!file.exists())
-        {
-            throw new InvalidFileException("There is no file at the path '" + path + "'");
-        }
-        if (!file.isFile())
-        {
-            throw new InvalidFileException("The path '" + path + "' points to a folder and not to a file");
-        }
-        return file;
     }
 
-    private Element readRoot(File file) throws InvalidFileException
+    private Element readRoot(InputStream content) throws InvalidFileException
     {
         Document document;
         try
         {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            document = builder.parse(file);
+            builder.setErrorHandler(null);
+            document = builder.parse(content);
         }
         catch (ParserConfigurationException | SAXException | IOException e)
         {
@@ -116,7 +88,7 @@ public class MarketLoader
         return root;
     }
 
-    private void readEvents(Element root, Market market) throws InvalidFileException
+    private List<Event> readEvents(Element root, Market market) throws InvalidFileException
     {
         Element eventsElement = findChild(root, EVENTS_TAG);
         if (eventsElement == null)
@@ -130,21 +102,31 @@ public class MarketLoader
             throw new InvalidFileException("The file does not contain any event");
         }
 
+        List<Event> events = new ArrayList<Event>();
+        int nextId = market.nextEventId();
         for (Element eventElement : eventElements)
         {
-            Event event = buildEvent(eventElement);
-            if (market.containsId(event.getId()))
+            Event event = buildEvent(eventElement, nextId);
+            if (market.findByName(event.getName()) != null)
             {
-                throw new InvalidFileException("Event number " + event.getId() + " appears more than once in the file. Every event must have its own unique number");
+                throw new InvalidFileException("An event named '" + event.getName() + "' already exists in the system. Event names must be unique");
             }
-            market.addEvent(event);
+            for (Event other : events)
+            {
+                if (other.getName().equalsIgnoreCase(event.getName()))
+                {
+                    throw new InvalidFileException("The event name '" + event.getName() + "' appears more than once in the file. Every event must have its own unique name");
+                }
+            }
+            events.add(event);
+            nextId++;
         }
+        return events;
     }
 
-    private Event buildEvent(Element eventElement) throws InvalidFileException
+    private Event buildEvent(Element eventElement, int id) throws InvalidFileException
     {
         String name = readAttribute(eventElement, NAME_ATTRIBUTE, "an event");
-        int id = readInt(readChildText(eventElement, ID_TAG, "event '" + name + "'"), "The id of the event '" + name + "'");
         String description = readChildText(eventElement, DESCRIPTION_TAG, "event '" + name + "'");
 
         Element commissionElement = findChild(eventElement, COMMISSION_TAG);
@@ -194,7 +176,7 @@ public class MarketLoader
             }
             for (EventOption existing : options)
             {
-                if (existing.getName().equals(optionName))
+                if (existing.getName().equalsIgnoreCase(optionName))
                 {
                     throw new InvalidFileException("The option '" + optionName + "' appears twice in the event '" + eventName + "'");
                 }
@@ -248,90 +230,6 @@ public class MarketLoader
             return new OrderBookMethod(options, Boolean.parseBoolean(mintValue.toLowerCase()), initial, d);
         }
         throw new InvalidFileException("The event '" + eventName + "' does not declare a trading method (" + LMSR_TAG + " or " + ORDER_BOOK_TAG + ")");
-    }
-
-    private void readUsers(Element root, Market market) throws InvalidFileException
-    {
-        Element usersElement = findChild(root, USERS_TAG);
-        if (usersElement == null)
-        {
-            throw new InvalidFileException("The element '" + USERS_TAG + "' is missing from the file");
-        }
-
-        List<Element> userElements = findChildren(usersElement, USER_TAG);
-        if (userElements.isEmpty())
-        {
-            throw new InvalidFileException("The file does not contain any user");
-        }
-
-        for (Element userElement : userElements)
-        {
-            String name = readAttribute(userElement, NAME_ATTRIBUTE, "a user");
-            if (market.containsUser(name))
-            {
-                throw new InvalidFileException("The user name '" + name + "' appears more than once in the file. Every user must have a unique name");
-            }
-
-            int initialCash = readInt(readChildText(userElement, INITIAL_CASH_TAG, "user '" + name + "'"), "The initial cash of the user '" + name + "'");
-            if (initialCash <= 0)
-            {
-                throw new InvalidFileException("The initial cash of the user '" + name + "' is " + initialCash + " - every user has to start with more than 0");
-            }
-
-            User user = new User(name, initialCash);
-            readMarketMakerEvents(userElement, user, market);
-            market.addUser(user);
-        }
-    }
-
-    private void readMarketMakerEvents(Element userElement, User user, Market market) throws InvalidFileException
-    {
-        Element marketMakerElement = findChild(userElement, MARKET_MAKER_TAG);
-        if (marketMakerElement == null)
-        {
-            return;
-        }
-
-        for (Element eventElement : findChildren(marketMakerElement, MM_EVENT_TAG))
-        {
-            int eventId = readInt(readAttribute(eventElement, ID_ATTRIBUTE, "a market maker entry of the user '" + user.getName() + "'"), "The event id of the market maker entry of the user '" + user.getName() + "'");
-            if (!market.containsId(eventId))
-            {
-                throw new InvalidFileException("The user '" + user.getName() + "' is defined as the market maker of event number " + eventId + ", but there is no such event in the file");
-            }
-            if (user.isMarketMakerOf(eventId))
-            {
-                throw new InvalidFileException("The user '" + user.getName() + "' is defined twice as the market maker of event number " + eventId);
-            }
-            user.addMarketMakerEvent(eventId);
-        }
-    }
-
-    private void checkMarketMakers(Market market) throws InvalidFileException
-    {
-        Map<Integer, String> ownerByEvent = new HashMap<Integer, String>();
-        for (User user : market.getUsers())
-        {
-            for (Integer eventId : user.getMarketMakerEvents())
-            {
-                String existing = ownerByEvent.get(eventId);
-                if (existing != null)
-                {
-                    throw new InvalidFileException("Event number " + eventId + " has more than one market maker: '" + existing + "' and '" + user.getName() + "'. Every event must have exactly one");
-                }
-                ownerByEvent.put(eventId, user.getName());
-            }
-        }
-
-        for (Event event : market.getEvents())
-        {
-            String ownerName = ownerByEvent.get(Integer.valueOf(event.getId()));
-            if (ownerName == null)
-            {
-                throw new InvalidFileException("Event number " + event.getId() + " ('" + event.getName() + "') has no market maker. Every event must have exactly one");
-            }
-            event.setMarketMakerName(ownerName);
-        }
     }
 
     private String readAttribute(Element element, String attribute, String owner) throws InvalidFileException

@@ -1,20 +1,22 @@
 package guessmarket.engine;
 
-import guessmarket.engine.dto.EventDto;
-import guessmarket.engine.dto.EventStateDto;
-import guessmarket.engine.dto.OptionBookDto;
-import guessmarket.engine.dto.OptionStateDto;
-import guessmarket.engine.dto.OrderBookStateDto;
-import guessmarket.engine.dto.OrderDto;
-import guessmarket.engine.dto.ParticipantDto;
-import guessmarket.engine.dto.ParticipationDto;
-import guessmarket.engine.dto.TradeDto;
-import guessmarket.engine.dto.TradeResultDto;
-import guessmarket.engine.dto.UserDto;
+import guessmarket.dto.AccountLineDto;
+import guessmarket.dto.EventDto;
+import guessmarket.dto.EventStateDto;
+import guessmarket.dto.OptionBookDto;
+import guessmarket.dto.OptionStateDto;
+import guessmarket.dto.OrderBookStateDto;
+import guessmarket.dto.OrderDto;
+import guessmarket.dto.ParticipantDto;
+import guessmarket.dto.ParticipationDto;
+import guessmarket.dto.TradeDto;
+import guessmarket.dto.TradeResultDto;
+import guessmarket.dto.UserDto;
 import guessmarket.engine.exception.InvalidFileException;
 import guessmarket.engine.exception.InvalidRequestException;
 import guessmarket.engine.method.LmsrMethod;
 import guessmarket.engine.method.OrderBookMethod;
+import guessmarket.engine.model.AccountLine;
 import guessmarket.engine.model.Event;
 import guessmarket.engine.model.EventOption;
 import guessmarket.engine.model.Market;
@@ -26,42 +28,70 @@ import guessmarket.engine.model.Trade;
 import guessmarket.engine.model.TradeResult;
 import guessmarket.engine.model.User;
 import guessmarket.engine.xml.MarketLoader;
-import guessmarket.engine.model.CommissionType;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EngineImpl implements GuessMarketEngine
 {
-    private Market market;
-    private String loadedFilePath;
+    private final Market market = new Market();
+    private int version;
 
     @Override
-    public void loadEventsFile(String path) throws InvalidFileException
+    public void addUser(String userName)
     {
+        String name = userName == null ? "" : userName.trim();
+        if (name.isEmpty())
+        {
+            throw new InvalidRequestException("Please enter a user name");
+        }
+        for (char c : name.toCharArray())
+        {
+            if (c < 32 || c > 126)
+            {
+                throw new InvalidRequestException("The user name must be written in English letters only");
+            }
+        }
+        if (market.containsUser(name))
+        {
+            throw new InvalidRequestException("The user name '" + name + "' is already taken. Please choose a different name");
+        }
+        market.addUser(new User(name));
+        version++;
+    }
+
+    @Override
+    public boolean isUserExists(String userName)
+    {
+        return userName != null && market.containsUser(userName.trim());
+    }
+
+    @Override
+    public int loadEventsFile(InputStream content, String fileName, String uploaderName) throws InvalidFileException
+    {
+        User uploader = requireUser(uploaderName);
         MarketLoader loader = new MarketLoader();
-        Market loaded = loader.load(path);
-        // only after a fully successful load the new file replaces the old one
-        market = loaded;
-        loadedFilePath = path;
+        List<Event> events = loader.load(content, fileName, market);
+        for (Event event : events)
+        {
+            event.setMarketMakerName(uploader.getName());
+            market.addEvent(event);
+            uploader.addMarketMakerEvent(event.getId());
+        }
+        version++;
+        return events.size();
     }
 
     @Override
-    public boolean isFileLoaded()
+    public int getVersion()
     {
-        return market != null;
-    }
-
-    @Override
-    public String getLoadedFilePath()
-    {
-        return loadedFilePath;
+        return version;
     }
 
     @Override
     public List<EventDto> getAllEvents()
     {
-        checkLoaded();
         List<EventDto> result = new ArrayList<EventDto>();
         for (Event event : market.getEvents())
         {
@@ -139,7 +169,6 @@ public class EngineImpl implements GuessMarketEngine
     @Override
     public List<UserDto> getAllUsers()
     {
-        checkLoaded();
         List<UserDto> result = new ArrayList<UserDto>();
         for (User user : market.getUsers())
         {
@@ -179,9 +208,35 @@ public class EngineImpl implements GuessMarketEngine
     }
 
     @Override
+    public List<AccountLineDto> getAccountLines(String userName)
+    {
+        List<AccountLineDto> result = new ArrayList<AccountLineDto>();
+        int number = 1;
+        for (AccountLine line : requireUser(userName).getAccountLines())
+        {
+            result.add(new AccountLineDto(number, line.getDescription(), line.getAmount(), line.getBalanceAfter()));
+            number++;
+        }
+        return result;
+    }
+
+    @Override
+    public void loadFunds(String userName, double amount)
+    {
+        User user = requireUser(userName);
+        if (amount <= 0)
+        {
+            throw new InvalidRequestException("The amount to load has to be a positive number");
+        }
+        user.receive(amount, "Loaded funds to the account");
+        version++;
+    }
+
+    @Override
     public void openEvent(String userName, int eventId)
     {
         requireEvent(eventId).open(requireUser(userName));
+        version++;
     }
 
     @Override
@@ -192,7 +247,9 @@ public class EngineImpl implements GuessMarketEngine
         {
             throw new InvalidRequestException("Event number " + eventId + " is an order book event - use an order instead");
         }
-        return toResultDto(event.buyLmsr(requireUser(userName), optionIndex, quantity, market), userName);
+        TradeResultDto result = toResultDto(event.buyLmsr(requireUser(userName), optionIndex, quantity, market), userName);
+        version++;
+        return result;
     }
 
     @Override
@@ -208,67 +265,18 @@ public class EngineImpl implements GuessMarketEngine
         {
             throw new InvalidRequestException("'" + side + "' is not a valid order side");
         }
-        return toResultDto(event.submitOrder(requireUser(userName), parsedSide, optionIndex, quantity, price, market), userName);
+        TradeResultDto result = toResultDto(event.submitOrder(requireUser(userName), parsedSide, optionIndex, quantity, price, market), userName);
+        version++;
+        return result;
     }
 
     @Override
     public void closeEvent(String userName, int eventId, int optionIndex)
     {
         requireEvent(eventId).close(requireUser(userName), optionIndex, market);
+        version++;
     }
 
-
-    @Override
-    public int createLmsrEvent(String creatorUserName, String name, String description, int commissionPercent,
-                               String commissionType, List<String> optionNames, int b)
-    {
-        checkLoaded();
-        User creator = requireUser(creatorUserName);
-        checkEventName(name);
-        checkCommissionPercent(commissionPercent);
-        CommissionType type = parseCommissionType(commissionType);
-        List<EventOption> options = buildNewOptions(optionNames);
-        if (b <= 0)
-        {
-            throw new InvalidRequestException("b must be a positive number");
-        }
-
-        int id = nextEventId();
-        Event event = new Event(id, name.trim(), description == null ? "" : description.trim(),
-                commissionPercent, type, options, new LmsrMethod(options, b));
-        event.setMarketMakerName(creatorUserName);
-        market.addEvent(event);
-        creator.addMarketMakerEvent(id);
-        return id;
-    }
-
-    @Override
-    public int createOrderBookEvent(String creatorUserName, String name, String description, int commissionPercent,
-                                    String commissionType, List<String> optionNames, boolean allowMint, int initial, int d)
-    {
-        checkLoaded();
-        User creator = requireUser(creatorUserName);
-        checkEventName(name);
-        checkCommissionPercent(commissionPercent);
-        CommissionType type = parseCommissionType(commissionType);
-        List<EventOption> options = buildNewOptions(optionNames);
-        if (d <= 0)
-        {
-            throw new InvalidRequestException("The base value (d) must be a positive number");
-        }
-        if (initial < 0)
-        {
-            throw new InvalidRequestException("The initial investment cannot be negative");
-        }
-
-        int id = nextEventId();
-        Event event = new Event(id, name.trim(), description == null ? "" : description.trim(),
-                commissionPercent, type, options, new OrderBookMethod(options, allowMint, initial, d));
-        event.setMarketMakerName(creatorUserName);
-        market.addEvent(event);
-        creator.addMarketMakerEvent(id);
-        return id;
-    }
 
     private EventDto toEventDto(Event event)
     {
@@ -382,17 +390,8 @@ public class EngineImpl implements GuessMarketEngine
         return event.getWinningOption().getName();
     }
 
-    private void checkLoaded()
-    {
-        if (market == null)
-        {
-            throw new InvalidRequestException("No file is loaded in the system");
-        }
-    }
-
     private Event requireEvent(int eventId)
     {
-        checkLoaded();
         Event event = market.findById(eventId);
         if (event == null)
         {
@@ -403,75 +402,11 @@ public class EngineImpl implements GuessMarketEngine
 
     private User requireUser(String userName)
     {
-        checkLoaded();
         User user = market.find(userName);
         if (user == null)
         {
             throw new InvalidRequestException("There is no user named '" + userName + "' in the system");
         }
         return user;
-    }
-
-
-    private int nextEventId()
-    {
-        int max = 0;
-        for (Event event : market.getEvents())
-        {
-            max = Math.max(max, event.getId());
-        }
-        return max + 1;
-    }
-
-    private List<EventOption> buildNewOptions(List<String> optionNames)
-    {
-        if (optionNames == null || optionNames.size() != 2)
-        {
-            throw new InvalidRequestException("An event must have exactly 2 options");
-        }
-        List<EventOption> options = new ArrayList<>();
-        for (String rawName : optionNames)
-        {
-            String name = rawName == null ? "" : rawName.trim();
-            if (name.isEmpty())
-            {
-                throw new InvalidRequestException("Option names cannot be empty");
-            }
-            for (EventOption existing : options)
-            {
-                if (existing.getName().equalsIgnoreCase(name))
-                {
-                    throw new InvalidRequestException("The option '" + name + "' appears twice");
-                }
-            }
-            options.add(new EventOption(name));
-        }
-        return options;
-    }
-
-    private CommissionType parseCommissionType(String value)
-    {
-        CommissionType type = CommissionType.fromFileValue(value);
-        if (type == null)
-        {
-            throw new InvalidRequestException("Commission type must be 'on-close' or 'on-purchase'");
-        }
-        return type;
-    }
-
-    private void checkCommissionPercent(int percent)
-    {
-        if (percent < 0 || percent > 90)
-        {
-            throw new InvalidRequestException("Commission must be between 0 and 90");
-        }
-    }
-
-    private void checkEventName(String name)
-    {
-        if (name == null || name.trim().isEmpty())
-        {
-            throw new InvalidRequestException("The event needs a name");
-        }
     }
 }

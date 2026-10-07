@@ -41,14 +41,31 @@ public class Market implements Serializable, UserLookup
         return null;
     }
 
-    public boolean containsId(int id)
+    public Event findByName(String name)
     {
-        return findById(id) != null;
+        for (Event event : events)
+        {
+            if (event.getName().equalsIgnoreCase(name))
+            {
+                return event;
+            }
+        }
+        return null;
+    }
+
+    public int nextEventId()
+    {
+        int max = 0;
+        for (Event event : events)
+        {
+            max = Math.max(max, event.getId());
+        }
+        return max + 1;
     }
 
     public void addUser(User user)
     {
-        users.put(user.getName(), user);
+        users.put(user.getName().toLowerCase(), user);
     }
 
     public List<User> getUsers()
@@ -58,12 +75,16 @@ public class Market implements Serializable, UserLookup
 
     public boolean containsUser(String name)
     {
-        return users.containsKey(name);
+        return users.containsKey(name.toLowerCase());
     }
 
     @Override
     public User find(String name)
     {
-        return users.get(name);
+        if (name == null)
+        {
+            return null;
+        }
+        return users.get(name.toLowerCase());
     }
 }

@@ -2,6 +2,7 @@ out/
 dist/
 *.class
 *.jar
+!lib/*.jar
 *.gm
 .idea/
 *.iml

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="guessmarket.client.component.account.AccountController">
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="10" right="10" bottom="6" left="10"/>
+            </padding>
+            <Button fx:id="loadFileButton" text="Load File" onAction="#loadFileButtonClicked"/>
+            <Label fx:id="filePathLabel" text="No file was uploaded yet" maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                   style="-fx-border-color: #c0c0c0; -fx-padding: 4;"/>
+        </HBox>
+    </top>
+    <center>
+        <SplitPane dividerPositions="0.42">
+            <ScrollPane fitToWidth="true" fitToHeight="true">
+                <VBox spacing="8" minHeight="420">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <Label text="Other users" style="-fx-font-weight: bold;"/>
+                    <TableView fx:id="usersTable" prefHeight="170" minHeight="100"/>
+                    <Label text="Account details" style="-fx-font-weight: bold;"/>
+                    <Label fx:id="accountBalanceLabel"/>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <TextField fx:id="fundsAmountTextField" promptText="Amount" prefWidth="100" onAction="#loadFundsButtonClicked"/>
+                        <Button text="Load funds" onAction="#loadFundsButtonClicked"/>
+                    </HBox>
+                    <TableView fx:id="accountLinesTable" VBox.vgrow="ALWAYS" minHeight="120"/>
+                </VBox>
+            </ScrollPane>
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="8">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    <Label text="Events participation / ownership" style="-fx-font-weight: bold;"/>
+                    <TableView fx:id="involvementTable" prefHeight="160" minHeight="100"/>
+                    <Label text="Single event details and trade" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                    <fx:include fx:id="eventDetailsComponent" source="../details/event-details.fxml"/>
+                </VBox>
+            </ScrollPane>
+        </SplitPane>
+    </center>
+</BorderPane>

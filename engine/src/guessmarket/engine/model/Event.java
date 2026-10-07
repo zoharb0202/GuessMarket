@@ -177,7 +177,7 @@ public class Event implements Serializable
                     marketMaker.getName(), investment, marketMaker.getBalance()));
         }
 
-        marketMaker.pay(investment);
+        marketMaker.pay(investment, "Opened the event '" + name + "'");
         account.deposit(investment);
 
         if (isOrderBook())
@@ -222,7 +222,7 @@ public class Event implements Serializable
         TradeResult result = new TradeResult();
         options.get(optionIndex).addShares(quantity);
         account.deposit(cost);
-        payFor(user, cost + commission, result);
+        payFor(user, cost + commission, buyDescription(quantity, optionIndex), result);
         payCommission(commission, users, result);
 
         Participation participation = user.openParticipation(id, options.size());
@@ -331,13 +331,13 @@ public class Event implements Serializable
             if (payout > 0)
             {
                 account.withdraw(payout);
-                participant.receive(payout - commission);
+                participant.receive(payout - commission, "Winnings from the event '" + name + "'");
             }
             if (commission > 0)
             {
                 participation.addCommission(commission);
                 collectedCommission += commission;
-                users.find(marketMakerName).receive(commission);
+                users.find(marketMakerName).receive(commission, "Commission from the event '" + name + "'");
             }
             participation.settle(payout - commission);
         }
@@ -347,7 +347,7 @@ public class Event implements Serializable
         if (leftOver > 0)
         {
             account.withdraw(leftOver);
-            users.find(marketMakerName).receive(leftOver);
+            users.find(marketMakerName).receive(leftOver, "Money left in the event '" + name + "' after closing it");
         }
 
         if (isOrderBook())
@@ -391,8 +391,8 @@ public class Event implements Serializable
             commission = amount * commissionPercent / 100.0;
         }
 
-        payFor(buyer, amount + commission, result);
-        seller.receive(amount);
+        payFor(buyer, amount + commission, buyDescription(tradedQuantity, incoming.getOptionIndex()), result);
+        seller.receive(amount, "Sold " + tradedQuantity + " shares of '" + options.get(incoming.getOptionIndex()).getName() + "' in the event '" + name + "'");
         payCommission(commission, users, result);
 
         moveShares(buyer, seller, incoming.getOptionIndex(), tradedQuantity, amount, commission);
@@ -453,7 +453,7 @@ public class Event implements Serializable
             commission = amount * commissionPercent / 100.0;
         }
 
-        payFor(user, amount + commission, result);
+        payFor(user, amount + commission, buyDescription(quantity, optionIndex), result);
         payCommission(commission, users, result);
         options.get(optionIndex).addShares(quantity);
 
@@ -505,12 +505,17 @@ public class Event implements Serializable
         return owned;
     }
 
-    private void payFor(User user, double amount, TradeResult result)
+    private void payFor(User user, double amount, String description, TradeResult result)
     {
-        if (user.pay(amount))
+        if (user.pay(amount, description))
         {
             result.addBlockedUser(user.getName());
         }
+    }
+
+    private String buyDescription(int quantity, int optionIndex)
+    {
+        return "Bought " + quantity + " shares of '" + options.get(optionIndex).getName() + "' in the event '" + name + "'";
     }
 
     /** Commissions always end up in the account of the market maker of the event. */
@@ -521,7 +526,7 @@ public class Event implements Serializable
             return;
         }
         collectedCommission += commission;
-        users.find(marketMakerName).receive(commission);
+        users.find(marketMakerName).receive(commission, "Commission from the event '" + name + "'");
     }
 
     private void checkTradingAllowed(User user)

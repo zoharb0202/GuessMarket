@@ -1,27 +1,26 @@
 package guessmarket.engine;
 
-import guessmarket.engine.dto.EventDto;
-import guessmarket.engine.dto.EventStateDto;
-import guessmarket.engine.dto.OrderBookStateDto;
-import guessmarket.engine.dto.ParticipationDto;
-import guessmarket.engine.dto.TradeResultDto;
-import guessmarket.engine.dto.UserDto;
+import guessmarket.dto.AccountLineDto;
+import guessmarket.dto.EventDto;
+import guessmarket.dto.EventStateDto;
+import guessmarket.dto.OrderBookStateDto;
+import guessmarket.dto.ParticipationDto;
+import guessmarket.dto.TradeResultDto;
+import guessmarket.dto.UserDto;
 import guessmarket.engine.exception.InvalidFileException;
-import guessmarket.engine.model.CommissionType;
 
+import java.io.InputStream;
 import java.util.List;
 
-/**
- * The whole api of the system. The ui talks only through this interface and
- * only with dto objects - it never sees the engine model itself.
- */
 public interface GuessMarketEngine
 {
-    void loadEventsFile(String path) throws InvalidFileException;
+    void addUser(String userName);
 
-    boolean isFileLoaded();
+    boolean isUserExists(String userName);
 
-    String getLoadedFilePath();
+    int loadEventsFile(InputStream content, String fileName, String uploaderName) throws InvalidFileException;
+
+    int getVersion();
 
     List<EventDto> getAllEvents();
 
@@ -35,9 +34,13 @@ public interface GuessMarketEngine
 
     UserDto getUser(String userName);
 
+    List<AccountLineDto> getAccountLines(String userName);
+
     List<ParticipationDto> getParticipations(String userName);
 
     ParticipationDto getParticipation(String userName, int eventId);
+
+    void loadFunds(String userName, double amount);
 
     void openEvent(String userName, int eventId);
 
@@ -46,11 +49,4 @@ public interface GuessMarketEngine
     TradeResultDto submitOrder(String userName, int eventId, int optionIndex, String side, int quantity, double price);
 
     void closeEvent(String userName, int eventId, int optionIndex);
-
-
-    int createLmsrEvent(String creatorUserName, String name, String description, int commissionPercent,
-                        String commissionType, List<String> optionNames, int b);
-
-    int createOrderBookEvent(String creatorUserName, String name, String description, int commissionPercent,
-                             String commissionType, List<String> optionNames, boolean allowMint, int initial, int d);
 }

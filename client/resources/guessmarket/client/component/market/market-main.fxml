@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+
+<TabPane tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+         fx:controller="guessmarket.client.component.market.MarketMainController">
+    <Tab text="Events">
+        <fx:include fx:id="eventsComponent" source="../events/events.fxml"/>
+    </Tab>
+    <Tab text="Account">
+        <fx:include fx:id="accountComponent" source="../account/account.fxml"/>
+    </Tab>
+    <Tab text="Chat">
+        <fx:include fx:id="chatComponent" source="../chat/chat-area.fxml"/>
+    </Tab>
+</TabPane>

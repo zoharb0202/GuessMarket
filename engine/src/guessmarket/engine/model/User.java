@@ -18,10 +18,10 @@ public class User implements Serializable
     private final Map<Integer, Participation> participations;
     private boolean blocked;
 
-    public User(String name, int initialCash)
+    public User(String name)
     {
         this.name = name;
-        account = new Account(initialCash);
+        account = new Account(0);
         marketMakerEvents = new LinkedHashSet<Integer>();
         participations = new LinkedHashMap<Integer, Participation>();
         blocked = false;
@@ -62,14 +62,9 @@ public class User implements Serializable
         return account.canAfford(amount);
     }
 
-    /**
-     * Takes money out of the account. The balance is allowed to become negative
-     * exactly once - from that moment the user is blocked and cannot act any more.
-     * Returns true if this payment is the one that blocked the user.
-     */
-    public boolean pay(double amount)
+    public boolean pay(double amount, String description)
     {
-        account.withdraw(amount);
+        account.withdraw(amount, description);
         if (account.getBalance() < 0 && !blocked)
         {
             blocked = true;
@@ -78,9 +73,18 @@ public class User implements Serializable
         return false;
     }
 
-    public void receive(double amount)
+    public void receive(double amount, String description)
     {
-        account.deposit(amount);
+        account.deposit(amount, description);
+        if (blocked && account.getBalance() >= 0)
+        {
+            blocked = false;
+        }
+    }
+
+    public List<AccountLine> getAccountLines()
+    {
+        return account.getLines();
     }
 
     public List<Participation> getParticipations()

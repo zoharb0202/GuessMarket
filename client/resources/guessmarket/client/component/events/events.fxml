@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<SplitPane dividerPositions="0.42" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+           fx:controller="guessmarket.client.component.events.EventsController">
+    <VBox spacing="8">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+        <VBox fx:id="filtersBox" spacing="6"/>
+        <TableView fx:id="eventsTable" VBox.vgrow="ALWAYS"/>
+    </VBox>
+    <ScrollPane fitToWidth="true">
+        <VBox spacing="6">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="Event details and trade" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <fx:include fx:id="eventDetailsComponent" source="../details/event-details.fxml"/>
+        </VBox>
+    </ScrollPane>
+</SplitPane>
