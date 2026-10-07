@@ -1,12 +1,6 @@
 package guessmarket.engine.model;
 
 import java.io.Serializable;
-
-/**
- * A single executed trade. Used by both trading methods:
- * in LMSR every purchase creates one trade, in the order book every fill
- * (or mint) creates one trade for each side.
- */
 public class Trade implements Serializable
 {
     private static final long serialVersionUID = 1L;
