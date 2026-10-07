@@ -4,11 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-/**
- * What happened as a result of one single user action (an LMSR purchase or an
- * order that was submitted to a book).
- */
 public class TradeResult
 {
     private final List<Trade> trades = new ArrayList<Trade>();
