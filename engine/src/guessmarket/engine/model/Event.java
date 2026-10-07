@@ -14,6 +14,7 @@ import java.util.Set;
 public class Event implements Serializable
 {
     private static final long serialVersionUID = 1L;
+    private static final double MIN_PRICE = 0.01;
 
     private final int id;
     private final String name;
@@ -237,9 +238,13 @@ public class Event implements Serializable
         {
             throw new InvalidRequestException("The amount of shares has to be a positive number");
         }
-        if (price <= 0)
+        if (price < MIN_PRICE - 1e-9)
         {
-            throw new InvalidRequestException("The price has to be a positive number");
+            throw new InvalidRequestException("The price of a share has to be at least 0.01");
+        }
+        if (Math.abs(price * 100 - Math.round(price * 100)) > 1e-6)
+        {
+            throw new InvalidRequestException("The price can have at most 2 digits after the point (for example 0.55)");
         }
         if (price > book.getMaxPrice() + 1e-9)
         {
