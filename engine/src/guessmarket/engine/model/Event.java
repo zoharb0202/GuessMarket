@@ -174,7 +174,6 @@ public class Event implements Serializable
 
         if (isOrderBook())
         {
-            // the market maker gets one pair of shares for every base value he paid
             OrderBookMethod orderBook = getOrderBookMethod();
             int pairs = orderBook.getInitialPairs();
             if (pairs > 0)

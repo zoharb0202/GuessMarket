@@ -6,9 +6,6 @@ import guessmarket.engine.model.OrderBook;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The mutual trading method: every option has its own book of buy and sell orders.
- */
 public class OrderBookMethod extends TradingMethod
 {
     private static final long serialVersionUID = 1L;
@@ -61,13 +58,11 @@ public class OrderBookMethod extends TradingMethod
         return books;
     }
 
-    /** How many pairs of shares the market maker gets for his initial investment. */
     public int getInitialPairs()
     {
         return initial / d;
     }
 
-    /** The highest price an order may ask for - one step below the base value. */
     public double getMaxPrice()
     {
         return d - PRICE_STEP;

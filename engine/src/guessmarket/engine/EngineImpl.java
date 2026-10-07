@@ -316,10 +316,6 @@ public class EngineImpl implements GuessMarketEngine
                 participation.getPayout(), participation.getProfitOrLoss(), winnerName(event));
     }
 
-    /**
-     * A single fill creates one trade for the buyer and one for the seller, so the
-     * totals are summed only over the trades of the user who made the request.
-     */
     private TradeResultDto toResultDto(TradeResult result, String actingUserName)
     {
         double totalAmount = 0;
@@ -340,7 +336,6 @@ public class EngineImpl implements GuessMarketEngine
     private List<TradeDto> toTradeDtos(List<Trade> trades)
     {
         List<TradeDto> result = new ArrayList<TradeDto>();
-        // newest first
         for (int i = trades.size() - 1; i >= 0; i--)
         {
             Trade trade = trades.get(i);

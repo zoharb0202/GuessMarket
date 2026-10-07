@@ -2,9 +2,6 @@ package guessmarket.engine.model;
 
 import java.io.Serializable;
 
-/**
- * A single order resting in (or being processed against) an order book.
- */
 public class Order implements Serializable
 {
     private static final long serialVersionUID = 1L;
