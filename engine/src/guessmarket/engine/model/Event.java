@@ -11,10 +11,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * A single event in the market. The event owns its own account (the "contract"),
- * its trading method and the history of the trades that happened inside it.
- */
 public class Event implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -45,7 +41,6 @@ public class Event implements Serializable
         this.method = method;
         trades = new ArrayList<Trade>();
         participants = new LinkedHashSet<String>();
-        // the event account starts empty. It is filled by the market maker when he opens the event.
         account = new Account(0);
         status = EventStatus.NOT_STARTED;
     }
@@ -150,10 +145,6 @@ public class Event implements Serializable
         return (LmsrMethod) method;
     }
 
-    /**
-     * Opens the event. Only the market maker can do this, and only if he has
-     * enough money for the initial investment.
-     */
     public void open(User marketMaker)
     {
         if (status != EventStatus.NOT_STARTED)
@@ -201,7 +192,6 @@ public class Event implements Serializable
         status = EventStatus.ACTIVE;
     }
 
-    /** A purchase of shares in an LMSR event. */
     public TradeResult buyLmsr(User user, int optionIndex, int quantity, UserLookup users)
     {
         checkTradingAllowed(user);
@@ -237,7 +227,6 @@ public class Event implements Serializable
         return result;
     }
 
-    /** Submits an order to the book of one option and processes the book right away. */
     public TradeResult submitOrder(User user, Side side, int optionIndex, int quantity, double price, UserLookup users)
     {
         checkTradingAllowed(user);
@@ -293,10 +282,6 @@ public class Event implements Serializable
         return result;
     }
 
-    /**
-     * Closes the event and decides the winning option. The event account is
-     * emptied to the holders of the winning option.
-     */
     public void close(User marketMaker, int optionIndex, UserLookup users)
     {
         if (status != EventStatus.ACTIVE)
@@ -342,7 +327,6 @@ public class Event implements Serializable
             participation.settle(payout - commission);
         }
 
-        // whatever is left in the event account goes back to the market maker
         double leftOver = account.getBalance();
         if (leftOver > 0)
         {
@@ -406,11 +390,6 @@ public class Event implements Serializable
         return true;
     }
 
-    /**
-     * Creates new shares when two buyers - one on each option - together offer at
-     * least the base value. The order that was already waiting keeps its own price,
-     * the new order pays what is left up to the base value.
-     */
     private boolean mintOnce(Order incoming, OrderBookMethod book, UserLookup users, TradeResult result)
     {
         if (incoming.getSide() != Side.BUY || options.size() != 2)
@@ -518,7 +497,6 @@ public class Event implements Serializable
         return "Bought " + quantity + " shares of '" + options.get(optionIndex).getName() + "' in the event '" + name + "'";
     }
 
-    /** Commissions always end up in the account of the market maker of the event. */
     private void payCommission(double commission, UserLookup users, TradeResult result)
     {
         if (commission <= 0)
