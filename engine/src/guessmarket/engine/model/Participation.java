@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Everything a single user holds and did inside a single event.
- */
 public class Participation implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -77,7 +74,6 @@ public class Participation implements Serializable
         return total;
     }
 
-    /** Profit or loss of the whole participation. Meaningful once the event is closed. */
     public double getProfitOrLoss()
     {
         return payout - getTotalNetPaid() - commissionPaid;
