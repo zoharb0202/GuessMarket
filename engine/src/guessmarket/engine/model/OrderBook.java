@@ -4,11 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * The book of one single option. Bids are kept from the highest price to the
- * lowest, asks from the lowest to the highest; inside the same price the older
- * order comes first.
- */
 public class OrderBook implements Serializable
 {
     private static final long serialVersionUID = 1L;
@@ -84,7 +79,6 @@ public class OrderBook implements Serializable
         return order.getPrice();
     }
 
-    /** Average of the best bid and the best ask. NO_PRICE when one of them is missing. */
     public double getMidPrice()
     {
         double bid = getBestBidPrice();
@@ -96,7 +90,6 @@ public class OrderBook implements Serializable
         return (bid + ask) / 2;
     }
 
-    /** Distance between the best ask and the best bid. NO_PRICE when one of them is missing. */
     public double getSpread()
     {
         double bid = getBestBidPrice();
